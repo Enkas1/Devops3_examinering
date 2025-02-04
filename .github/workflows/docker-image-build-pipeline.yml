@@ -25,10 +25,16 @@ jobs:
         run: |
           echo "${{ secrets.GHCR_PAT }}" | docker login ${{ env.REGISTRY }} -u ${{ github.actor }} --password-stdin
       
+        # Since my github username has upper case
+      - name: Convert repository name to lowercase
+        run: |
+          LOWERCASE_REPO_NAME=$(echo "${{ env.IMAGE_NAME }}" | tr '[:upper:]' '[:lower:]')
+          echo "LOWERCASE_REPO_NAME=$LOWERCASE_REPO_NAME" >> $GITHUB_ENV    
+      
       - name: Build Docker image without cache
         run: |
-          docker build --no-cache -t ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ env.VERSION }} .
+          docker build --no-cache -t ${{ env.REGISTRY }}/${{ env.LOWERCASE_REPO_NAME }}:${{ env.VERSION }} .
       
       - name: Push Docker image to GHCR
         run: |
-          docker push ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ env.VERSION }}
+          docker push ${{ env.REGISTRY }}/${{ env.LOWERCASE_REPO_NAME }}:${{ env.VERSION }}
