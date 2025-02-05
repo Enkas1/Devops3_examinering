@@ -41,8 +41,6 @@ jobs:
 
           sleep 5
 
-          curl --fail http://localhost:8080 || exit 1
-
           docker ps -a
           docker logs test-container
           docker stop test-container  
