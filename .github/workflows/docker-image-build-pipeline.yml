@@ -37,12 +37,19 @@ jobs:
       
       - name: Test Docker image
         run: |
+          echo "Starting the Docker container..."
           docker run -d --name test-container -p 8080:8080 ${{ env.REGISTRY }}/${{ env.LOWERCASE_REPO_NAME }}:${{ env.VERSION }}
-
+          
+          echo "Waiting for the container to start..."
           sleep 5
-
+          
+          echo "Listing all containers:"
           docker ps -a
+
+          echo "Docker logs:"
           docker logs test-container
+
+          echo "Stopping and removing container..."
           docker stop test-container  
           docker rm test-container
 
