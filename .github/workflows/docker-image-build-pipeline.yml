@@ -35,6 +35,19 @@ jobs:
         run: |
           docker build --no-cache -t ${{ env.REGISTRY }}/${{ env.LOWERCASE_REPO_NAME }}:${{ env.VERSION }} .
       
+      - name: Test Docker image
+        run: |
+          docker run -d --name test-container -p 8080:8080 ${{ env.REGISTRY }}/${{ env.LOWERCASE_REPO_NAME }}:${{ env.VERSION }}
+
+          sleep 5
+
+          curl --fail http://localhost:8080 || exit 1
+
+          docker ps -a
+          docker logs test-container
+          docker stop test-container  
+          docker rm test-container
+
       - name: Push Docker image to GHCR
         run: |
           docker push ${{ env.REGISTRY }}/${{ env.LOWERCASE_REPO_NAME }}:${{ env.VERSION }}
