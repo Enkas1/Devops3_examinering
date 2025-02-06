@@ -38,10 +38,7 @@ jobs:
       - name: Test Docker image
         run: |
           echo "Starting the Docker container..."
-          docker run -d --name test-container -p 80:80 ${{ env.REGISTRY }}/${{ env.LOWERCASE_REPO_NAME }}:${{ env.VERSION }}
-          
-          echo "Waiting for the container to start..."
-          sleep 5
+          docker run -d --rm --name test-container -p 80:80 ${{ env.REGISTRY }}/${{ env.LOWERCASE_REPO_NAME }}:${{ env.VERSION }}
           
           echo "Listing all containers:"
           docker ps -a
@@ -54,7 +51,6 @@ jobs:
 
           echo "Stopping and removing container..."
           docker stop test-container  
-          docker rm test-container
 
       - name: Push Docker image to GHCR
         run: |
