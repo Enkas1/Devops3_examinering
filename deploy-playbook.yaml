@@ -4,31 +4,32 @@
   gather_facts: no
   tasks:
   
-    - name: Set image version from environment variable in workflows 
+    - name: Set image version and GHCR url 
       set_fact:
-        new_version: "{{ new_version }}" 
+        new_version: "{{ new_version }}"
+        ghcr_url: "ghcr.io/enkas1/devops3_examinering" 
 
     - name: Check if image exists
-      command: "docker pull ghcr.io/enkas1/devops3_examinering:{{ new_version }}"
+      command: "docker pull {{ ghcr_url }}:{{ new_version }}"
       register: pull_image
       ignore_errors: yes
       failed_when: pull_image.rc != 0
       changed_when: false
 
-    - name: Fail if image does not exist
+    - name: Image not found
       fail:
-        msg: "Docker image ghcr.io/enkas1/devops3_examinering:{{ new_version }} not found!"
+        msg: "Docker image {{ ghcr_url }}:{{ new_version }} not found!"
       when: pull_image.rc != 0
 
     - name: Update image
       command: |
-        kubectl set image deployment/frontend nginx-frontend=ghcr.io/enkas1/devops3_examinering:{{ new_version }}
+        kubectl set image deployment/frontend nginx-frontend={{ ghcr_url }}:{{ new_version }}
       register: update_result
       failed_when: update_result.rc != 0
 
     - name: Wait for rollout to complete 
       block:
-        - name: Polling rollout status
+        - name: Check rollout status
           command: kubectl rollout status deployment/frontend
           register: rollout_status
           retries: 5  
